@@ -11,11 +11,18 @@ class SocketClient {
 
     init {
         try {
-            socket = IO.socket("https://192.168.2.183:8088")
+            socket = IO.socket("http://192.168.2.45:65535")
+
+
+
         } catch (e: Exception) {
             Log.e("SocketClient", e.toString())
         }
+    }
 
+
+    fun startConnection() {
+        Thread.sleep(1000)
         socket?.on(Socket.EVENT_CONNECT, Emitter.Listener {
             Log.d("SocketClient", "connect")
         })
@@ -29,8 +36,8 @@ class SocketClient {
         })
 
         socket?.connect()
+        Thread.sleep(1000)
     }
-
     fun send(bitmapArray: ByteArray?) {
 //        if (!mSocketReady) {
 //            return

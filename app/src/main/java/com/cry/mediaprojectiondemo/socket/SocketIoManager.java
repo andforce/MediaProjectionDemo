@@ -42,4 +42,8 @@ public class SocketIoManager {
     public void release() {
         socketClient.release();
     }
+
+    public void connect() {
+        socketClient.startConnection();
+    }
 }

@@ -65,7 +65,7 @@ dependencies {
     // OKIO
     implementation 'com.squareup.okio:okio:2.10.0'
 
-    implementation('io.socket:socket.io-client:1.0.0') {
+    implementation('io.socket:socket.io-client:2.1.0') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }

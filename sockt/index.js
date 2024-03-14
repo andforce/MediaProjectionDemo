@@ -3,7 +3,7 @@ var app = express();
 const path = require('path');
 var http = require('http').Server(app);
 
-var io = require('socket.io')(8088);
+var io = require('socket.io')(65535);
 
 io.on('connection', function (socket) {
     console.log('a user connected');

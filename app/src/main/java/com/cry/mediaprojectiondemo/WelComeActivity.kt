@@ -16,7 +16,7 @@ class WelComeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_wel)
 
         Thread {
-            SocketIoManager.getInstance()
+            SocketIoManager.getInstance().connect()
 
 //            val socketClient = MySocketClient("192.168.2.183", 8088)
 //            socketClient.startConnection()
