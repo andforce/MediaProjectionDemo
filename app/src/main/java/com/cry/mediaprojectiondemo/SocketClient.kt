@@ -11,7 +11,7 @@ class SocketClient {
 
     init {
         try {
-            socket = IO.socket("http://192.168.2.45:65535")
+            socket = IO.socket("http://192.168.2.183:65535")
 
 
 
@@ -45,7 +45,7 @@ class SocketClient {
 //        if (bitmapArray != null) {
 //            mSocket.emit("event", *bitmapArray)
 //        }
-        socket?.emit("event", bitmapArray)
+        socket?.emit("image", bitmapArray)
     }
 
     fun release() {

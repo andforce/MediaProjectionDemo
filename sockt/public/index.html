@@ -1,22 +1,35 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Receiver</title>
+</head>
+<body>
+<img id="screen" src="screen.png" alt="Screen Image">
 
-<script src="/socket.io/socket.io.js"></script>
+<!-- 加载 Socket.io 客户端库 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+
+
+<!-- Socket.io 相关 JavaScript 代码 -->
 <script>
-  var socket = io('http://localhost:8088');
-
-  socket.on('image', function (msg) {
-    var arrayBufferView = new Uint8Array(msg);
-    var blob = new Blob([arrayBufferView], { type: "image/png" });
-    var urlCreator = window.URL || window.webkitURL;
-    var imageUrl = urlCreator.createObjectURL(blob);
-    var img = document.getElementById("myImage");
-    img.src = imageUrl;
-  });
+    console.log('==========>>> start socket.io');
+    const socket = io();
+    console.log('==========>>> start socket.io' + socket);
+    socket.on('imageUpdated', function (time) {
+        console.log('==========>>> start socket.io' + time);
+        var imageUrl = path + "?time=" + time;
+        var img = document.getElementById("screen");
+        img.src = imageUrl;
+    });
 </script>
 
-<body>
-<img id="myImage" src="">
-</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('==========>>> Page loaded');
+    });
+</script>
 
+</body>
 </html>
