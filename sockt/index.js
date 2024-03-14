@@ -16,13 +16,12 @@ io.on('connection', function (socket) {
         // 保存到public目录下
         var time = new Date().getTime();
         var path = './public/screen.png';
-        io.emit('imageUpdated', time);
 
         fs.writeFile(path, msg, function (err) {
             if (err) {
                 console.log(err);
             }
-             io.emit('imageUpdated', time);
+             io.emit('imageUpdated');
         });
     });
     // 监听客户端断开

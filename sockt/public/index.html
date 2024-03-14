@@ -15,13 +15,10 @@
 <!-- Socket.io 相关 JavaScript 代码 -->
 <script>
     console.log('==========>>> start socket.io');
-    const socket = io();
+    const socket = io({transports:["polling"]});
     console.log('==========>>> start socket.io' + socket);
-    socket.on('imageUpdated', function (time) {
-        console.log('==========>>> start socket.io' + time);
-        var imageUrl = path + "?time=" + time;
-        var img = document.getElementById("screen");
-        img.src = imageUrl;
+    socket.on('imageUpdated', function () {
+        window.location.reload()
     });
 </script>
 
