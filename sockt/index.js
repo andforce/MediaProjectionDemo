@@ -2,34 +2,23 @@ var express = require('express')
 var app = express();
 const path = require('path');
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
 
-var ios = require('socket.io-client');
-
-const socket_client = ios('http://localhost:8088');
-
-console.log('======> socket_client try listen');
-
-socket_client.on('connect', function () {
-  console.log('======> socket_client connect');
-});
-
-socket_client.on('disconnect', function () {
-  console.log("disconnect");
-});
-
-console.log("Start!!");
+var io = require('socket.io')(8088);
 
 io.on('connection', function (socket) {
-  socket.on('chat message', function (msg) {
-    io.emit('chat message', msg);
-  });
-  // //将收到的数据发送出去
-  socket_client.on('event', function (data) {
-    console.log('event come!!');
-    io.emit('image', data);
-  });
+    console.log('a user connected');
+
+    socket.on('image', function (msg) {
+        console.log('image received');
+        // broadcast the image to all connected clients
+        io.emit('image', msg);
+    });
+    // 监听客户端断开
+    socket.on('disconnect', function () {
+        console.log('a user disconnected');
+    });
 });
+
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'public')));

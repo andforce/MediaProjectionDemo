@@ -12,6 +12,8 @@ class WelComeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wel)
 
+        SocketClient.sendGetRequest("http://192.168.2.183:3000")
+
         findViewById<Button>(R.id.btn_1).setOnClickListener{
             _->
             val intent = Intent(this@WelComeActivity, MainActivity::class.java)

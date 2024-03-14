@@ -20,6 +20,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        SocketClient.sendGetRequest("http://192.168.2.183:3000")
+
         //start server thread
         serverThread = ServerThread()
         serverThread!!.start()
