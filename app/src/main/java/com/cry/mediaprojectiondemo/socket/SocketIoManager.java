@@ -1,5 +1,7 @@
 package com.cry.mediaprojectiondemo.socket;
 
+import android.util.Log;
+
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -43,14 +45,16 @@ public class SocketIoManager {
             //将自己的账户发送过去
 //            mSocket.emit("user","sender");
             mSocketReady = true;
+            Log.d("SocketIoManager", "socket ready");
 
         }
     };
 
-    private final String LOCAL_SOCKET_URL = "http://192.168.20.194:9000";
+    private final String LOCAL_SOCKET_URL = "http://192.168.2.183:8088";
 
     public void startSocketIo() {
         try {
+            Log.d("SocketIoManager", "socket start");
             mSocket = IO.socket(LOCAL_SOCKET_URL);
             //事件监听
             mSocket.on("event", fn);
@@ -58,7 +62,8 @@ public class SocketIoManager {
             mSocket.on("join", joinEmiiter);
             mSocket.connect();
         } catch (URISyntaxException e) {
-
+            e.printStackTrace();
+            Log.d("SocketIoManager", "socket connect error");
         }
     }
 

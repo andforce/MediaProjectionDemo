@@ -1,6 +1,6 @@
 var ios = require('socket.io-client');
 
-const socket_client = ios('http://localhost:9000');
+const socket_client = ios('http://localhost:8088');
 
 
 socket_client.on('connect', function () {

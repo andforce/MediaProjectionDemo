@@ -1,0 +1,14 @@
+{
+  "name": "sockt",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {},
+  "dependencies": {
+    "express": "^4.18.3",
+    "fs": "^0.0.1-security",
+    "package.json": "^0.0.0",
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4",
+    "supervisor": "^0.12.0"
+  }
+}

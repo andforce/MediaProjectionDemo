@@ -1,16 +1,17 @@
 var express = require('express')
 var app = express();
+const path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var ios = require('socket.io-client');
 
-const socket_client = ios('http://localhost:9000');
+const socket_client = ios('http://localhost:8088');
 
+console.log('======> socket_client try listen');
 
 socket_client.on('connect', function () {
-  console.log('connect');
-
+  console.log('======> socket_client connect');
 });
 
 socket_client.on('disconnect', function () {
@@ -30,10 +31,11 @@ io.on('connection', function (socket) {
   });
 });
 
-app.use(express.static('public'));
+// 设置静态文件目录
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 http.listen(3000, function () {
