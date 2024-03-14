@@ -2,11 +2,15 @@ package com.cry.mediaprojectiondemo.socket;
 
 import android.util.Log;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
+//import com.github.nkzawa.emitter.Emitter;
+//import com.github.nkzawa.socketio.client.IO;
+//import com.github.nkzawa.socketio.client.Socket;
+
+import com.cry.mediaprojectiondemo.SocketClient;
 
 import java.net.URISyntaxException;
+
+import io.socket.client.Socket;
 
 /**
  * Created by a2957 on 4/23/2018.
@@ -14,9 +18,11 @@ import java.net.URISyntaxException;
 
 public class SocketIoManager {
 
+    SocketClient socketClient;
     private String localUrl;
 
     private SocketIoManager() {
+        socketClient = new SocketClient();
     }
 
     private static class SINGLE_TON {
@@ -27,58 +33,13 @@ public class SocketIoManager {
         return SINGLE_TON.INSTANCE;
     }
 
-    private Socket mSocket;
-    private boolean mSocketReady;
 
-    private Emitter.Listener fn = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-//            JSONObject data = (JSONObject) args[0];
-            System.out.println(args);
-        }
-    };
-    private Emitter.Listener joinEmiiter = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            //建立成功~
-            System.out.println(args[0]);
-            //将自己的账户发送过去
-//            mSocket.emit("user","sender");
-            mSocketReady = true;
-            Log.d("SocketIoManager", "socket ready");
-
-        }
-    };
-
-    private final String LOCAL_SOCKET_URL = "http://192.168.2.183:8088";
-
-    public void startSocketIo() {
-        try {
-            Log.d("SocketIoManager", "socket start");
-            mSocket = IO.socket(LOCAL_SOCKET_URL);
-            //事件监听
-            mSocket.on("event", fn);
-            //进入监听
-            mSocket.on("join", joinEmiiter);
-            mSocket.connect();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            Log.d("SocketIoManager", "socket connect error");
-        }
-    }
 
     public void send(byte[] bitmapArray) {
-        if (!mSocketReady) {
-            return;
-        }
-        if (bitmapArray != null) {
-            mSocket.emit("event", bitmapArray);
-        }
+        socketClient.send(bitmapArray);
     }
 
     public void release() {
-        mSocket.disconnect();
-        mSocket.off("event", fn);
-        mSocket.off("join", joinEmiiter);
+        socketClient.release();
     }
 }

@@ -2,8 +2,11 @@ package com.cry.mediaprojectiondemo
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.cry.mediaprojectiondemo.socket.SocketIoManager
+
 //import com.cry.cry.mediaprojectioncode.RecordActivity
 
 class WelComeActivity : AppCompatActivity() {
@@ -12,7 +15,18 @@ class WelComeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wel)
 
-        SocketClient.sendGetRequest("http://192.168.2.183:3000")
+        Thread {
+            SocketIoManager.getInstance()
+
+//            val socketClient = MySocketClient("192.168.2.183", 8088)
+//            socketClient.startConnection()
+//
+//            socketClient.sendMessage("Hello, Server!")
+//            val response = socketClient.receiveMessage()
+//            Log.d("SocketClient", "Response from server, $response")
+//            socketClient.stopConnection()
+
+        }.start()
 
         findViewById<Button>(R.id.btn_1).setOnClickListener{
             _->
