@@ -1,0 +1,41 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.cry.cry.rtmp'
+    compileSdk 31
+    defaultConfig {
+        minSdkVersion 21
+        targetSdk 31
+
+        versionCode 1
+        versionName "1.0"
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+
+    sourceSets.main {
+        jniLibs.srcDirs = ['libs']
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}

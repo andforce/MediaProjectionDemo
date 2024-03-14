@@ -1,0 +1,36 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.cry.cry.mediaprojectioncode'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 28
+        //noinspection ExpiredTargetSdkVersion,OldTargetApi
+        targetSdk 28
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation project(':rtmp')
+}
