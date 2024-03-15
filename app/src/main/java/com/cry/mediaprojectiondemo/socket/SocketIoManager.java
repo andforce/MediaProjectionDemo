@@ -1,16 +1,6 @@
 package com.cry.mediaprojectiondemo.socket;
 
-import android.util.Log;
-
-//import com.github.nkzawa.emitter.Emitter;
-//import com.github.nkzawa.socketio.client.IO;
-//import com.github.nkzawa.socketio.client.Socket;
-
 import com.cry.mediaprojectiondemo.SocketClient;
-
-import java.net.URISyntaxException;
-
-import io.socket.client.Socket;
 
 /**
  * Created by a2957 on 4/23/2018.

@@ -4,7 +4,6 @@ import android.util.Log
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
-import okhttp3.*
 
 class SocketClient {
     private var socket: Socket? = null
@@ -12,9 +11,6 @@ class SocketClient {
     init {
         try {
             socket = IO.socket("http://10.66.32.51:3001")
-
-
-
         } catch (e: Exception) {
             Log.e("SocketClient", e.toString())
         }
