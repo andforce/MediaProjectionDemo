@@ -15,10 +15,6 @@ import com.cry.screenop.ImageReaderAvailableObservable.Companion.of
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-/**
- * 截取屏幕的单利
- * Created by a2957 on 4/21/2018.
- */
 class RxScreenShot private constructor(private val mediaProjection: MediaProjection) {
     private val TAG = "RxScreenShot"
 
