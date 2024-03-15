@@ -6,7 +6,6 @@ class ResultEvent {
     var resultCode = 0
     var data: Intent? = null
 
-    constructor()
     constructor(resultCode: Int, data: Intent?) {
         this.resultCode = resultCode
         this.data = data

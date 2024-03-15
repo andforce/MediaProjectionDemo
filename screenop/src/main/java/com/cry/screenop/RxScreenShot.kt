@@ -1,11 +1,14 @@
 package com.cry.screenop
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
 import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Handler
 import android.os.Message
 import android.util.DisplayMetrics
@@ -14,7 +17,6 @@ import android.view.Surface
 import android.view.WindowManager
 import androidx.fragment.app.FragmentActivity
 import com.cry.screenop.ImageReaderAvailableObservable.Companion.of
-import com.cry.screenop.MediaProjectionHelper.requestCapture
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function
@@ -61,38 +63,40 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
         )
     }
 
-    fun startCapture(): Observable<Any> {
-        return of(imageReader!!)
-            .map(Function { imageReader ->
+    fun startCapture(): Observable<Bitmap?> {
+        return of(imageReader!!).map { imageReader ->
                 val mImageName = System.currentTimeMillis().toString() + ".jpeg"
                 Log.e(TAG, "image name is : $mImageName")
-                var bitmap: Bitmap? = null
                 var result: Bitmap? = null
                 val image = imageReader.acquireLatestImage()
-                if (image == null) {
-                } else {
-                    val width = imageReader.width
-                    val height = imageReader.height
+
+                image?.let {
+                    val width = image.width
+                    val height = image.height
                     val planes = image.planes
                     val buffer = planes[0].buffer
                     val pixelStride = planes[0].pixelStride
                     val rowStride = planes[0].rowStride
                     val rowPadding = rowStride - pixelStride * width
-                    bitmap = Bitmap.createBitmap(
+
+                    val bitmap = Bitmap.createBitmap(
                         width + rowPadding / pixelStride,
                         height,
                         Bitmap.Config.ARGB_8888
-                    )
-                    bitmap.copyPixelsFromBuffer(buffer)
-                    result = Bitmap.createBitmap(bitmap, 0, 0, width, height)
-                    if (!bitmap.isRecycled) {
-                        bitmap.recycle()
-                        bitmap = null
+                    ).apply {
+                        copyPixelsFromBuffer(buffer)
                     }
-                    image.close()
+
+                    result = Bitmap.createBitmap(bitmap, 0, 0, width, height).also {
+                        if (!bitmap.isRecycled) {
+                            bitmap.recycle()
+                        }
+                    }
+
+                    it.close()
                 }
-                result ?: Any()
-            })
+                result
+            }
     }
 
     internal inner class MediaCallBack : MediaProjection.Callback() {
@@ -117,12 +121,18 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
     }
 
     companion object {
-        const val MAX_IMAGE_HEIGHT = 480
-        private fun of(mediaProjection: MediaProjection): RxScreenShot {
-            return RxScreenShot(mediaProjection)
+        private const val MAX_IMAGE_HEIGHT = 480
+
+        private fun requestCapture(activity: FragmentActivity, mp: MediaProjection): Observable<MediaProjection?> {
+            val mpm = activity.applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
+            return if (mpm == null) {
+                Observable.just(null)
+            } else {
+                Observable.just(mp)
+            }
         }
 
-        fun shoot(activity: FragmentActivity): Observable<Any> {
+        fun shoot(activity: FragmentActivity, mp: MediaProjection): Observable<Bitmap?> {
             val metrics = DisplayMetrics()
             val windowMgr = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             windowMgr.defaultDisplay.getRealMetrics(metrics)
@@ -139,14 +149,17 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
             }
             val finalWidthPixels = widthPixels.toInt()
             val finalHeightPixels = heightPixels.toInt()
-            return requestCapture(activity)
-                .map<RxScreenShot>(Function { mediaProjection: MediaProjection ->
-                    of(mediaProjection).createImageReader(
-                        activity.windowManager,
-                        finalWidthPixels,
-                        finalHeightPixels
-                    )
-                })
+
+
+            return requestCapture(activity, mp)
+                .map { mediaProjection: MediaProjection ->
+                    RxScreenShot(mediaProjection)
+                        .createImageReader(
+                            activity.windowManager,
+                            finalWidthPixels,
+                            finalHeightPixels
+                        )
+                }
                 .flatMap { obj: RxScreenShot -> obj.startCapture() }
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
