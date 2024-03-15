@@ -33,8 +33,8 @@ public class RxScreenShot {
     SurfaceFactory mSurfaceFactory;
     ImageReader mImageReader;
 
-    public int width = 480;
-    public int height = 720;
+    public int width = 1080;
+    public int height = 2280;
     public int dpi = 1;
 
     private RxScreenShot(MediaProjection mediaProjection) {

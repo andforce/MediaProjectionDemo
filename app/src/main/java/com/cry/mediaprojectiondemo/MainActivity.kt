@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     //bitmap to byteArray to send through socket
     private fun sendBitmap(it: Bitmap) {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        it.compress(Bitmap.CompressFormat.JPEG, 60, byteArrayOutputStream)
+        it.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
         SocketIoManager.getInstance().send(byteArray)
     }

@@ -107,3 +107,8 @@ html, body {
 footer {
     text-align: center;
 }
+
+#image {
+    max-height: 720px;
+    width: auto;
+}

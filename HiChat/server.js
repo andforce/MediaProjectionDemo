@@ -45,12 +45,12 @@ io.sockets.on('connection', function(socket) {
     socket.on('image', function(imgData, color) {
         console.log('image received');
         //socket.broadcast.emit('newImg', socket.nickname, imgData, color);
-        var savePath = path.join(__dirname, "www",'screen.png');
+        var savePath = path.join(__dirname, "www",'screen.jpeg');
         fs.writeFile(savePath, imgData, function (err) {
             if (err) {
                 console.log(err);
             } else {
-                var pathWithTime = "screen.png?t=" + new Date().getTime();
+                var pathWithTime = "screen.jpeg?t=" + new Date().getTime();
                 console.log('image received, updateImage: ' + pathWithTime);
                 socket.broadcast.emit('updateImage', socket.nickname, pathWithTime, color);
             }
