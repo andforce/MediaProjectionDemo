@@ -27,7 +27,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "MediaProjectionDemo"
 include ':app'
-include ':acresult'
+//include ':acresult'
 //include ':codec'
 //include ':rtmp'
 include ':screenop'

@@ -1,25 +1,19 @@
 package com.cry.screenop
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
 import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
 import android.os.Handler
 import android.os.Message
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
-import androidx.fragment.app.FragmentActivity
 import com.cry.screenop.ImageReaderAvailableObservable.Companion.of
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Function
 
 /**
  * 截取屏幕的单利
@@ -121,41 +115,17 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
     }
 
     companion object {
-        private const val MAX_IMAGE_HEIGHT = 480
-
-        private fun requestCapture(activity: FragmentActivity, mp: MediaProjection): Observable<MediaProjection?> {
-            val mpm = activity.applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
-            return if (mpm == null) {
-                Observable.just(null)
-            } else {
-                Observable.just(mp)
-            }
+        private fun requestCapture(mp: MediaProjection): Observable<MediaProjection?> {
+            return Observable.just(mp)
         }
 
-        fun shoot(activity: FragmentActivity, mp: MediaProjection): Observable<Bitmap?> {
-            val metrics = DisplayMetrics()
-            val windowMgr = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowMgr.defaultDisplay.getRealMetrics(metrics)
+        fun shoot(windowMgr: WindowManager, finalWidthPixels: Int, finalHeightPixels: Int, mp: MediaProjection): Observable<Bitmap?> {
 
-            // 获取屏幕宽高
-            var widthPixels = metrics.widthPixels.toFloat()
-            var heightPixels = metrics.heightPixels.toFloat()
-            if (heightPixels > MAX_IMAGE_HEIGHT) {
-                // heightPixels        MAX_IMAGE_HEIGHT
-                // ------------  =     ----------------
-                // widthPixels         x
-                widthPixels = widthPixels * MAX_IMAGE_HEIGHT.toFloat() / heightPixels
-                heightPixels = MAX_IMAGE_HEIGHT.toFloat()
-            }
-            val finalWidthPixels = widthPixels.toInt()
-            val finalHeightPixels = heightPixels.toInt()
-
-
-            return requestCapture(activity, mp)
+            return requestCapture(mp)
                 .map { mediaProjection: MediaProjection ->
                     RxScreenShot(mediaProjection)
                         .createImageReader(
-                            activity.windowManager,
+                            windowMgr,
                             finalWidthPixels,
                             finalHeightPixels
                         )
