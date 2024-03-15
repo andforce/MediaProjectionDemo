@@ -1,6 +1,8 @@
 package com.cry.screenop;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.media.Image;
@@ -8,8 +10,10 @@ import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
+import android.view.WindowManager;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -33,10 +37,12 @@ public class RxScreenShot {
     SurfaceFactory mSurfaceFactory;
     ImageReader mImageReader;
 
-    public static final int MAX_IMAGE_HEIGHT = 2280 / 2;
+    public static final int MAX_IMAGE_HEIGHT = 1140;
     public int width = 1080;
     public int height = 2280;
     public int dpi = 1;
+    final DisplayMetrics metrics = new DisplayMetrics();
+
 
     private RxScreenShot(MediaProjection mediaProjection) {
         this.mediaProjection = mediaProjection;
@@ -46,19 +52,26 @@ public class RxScreenShot {
         return new RxScreenShot(mediaProjection);
     }
 
-    public RxScreenShot createImageReader(int width, int height) {
+    public RxScreenShot createImageReader(WindowManager manager, int width, int height) {
+        manager.getDefaultDisplay().getRealMetrics(metrics);
+
         this.width = width;
         this.height = height;
+        this.dpi = metrics.densityDpi;
+
         //注意这里使用RGB565报错提示，只能使用RGBA_8888
         mImageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 5);
         mSurfaceFactory = new ImageReaderSurface(mImageReader);
-        createProject();
+        createProject(width, height, dpi);
         return this;
     }
 
-    private void createProject() {
+    private void createProject(int width, int height, int dpi) {
         mediaProjection.registerCallback(mMediaCallBack, mCallBackHandler);
-        mediaProjection.createVirtualDisplay(TAG + "-display", width, height, dpi, DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+        int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
+
+        mediaProjection.createVirtualDisplay(TAG + "-display", width, height, dpi,
+                flags,
                 mSurfaceFactory.getInputSurface(), null, null);
     }
 
@@ -67,16 +80,17 @@ public class RxScreenShot {
                 .map(new Function<ImageReader, Object>() {
                     @Override
                     public Object apply(ImageReader imageReader) throws Exception {
-                        String mImageName = System.currentTimeMillis() + ".png";
+                        String mImageName = System.currentTimeMillis() + ".jpeg";
                         Log.e(TAG, "image name is : " + mImageName);
                         Bitmap bitmap = null;
+                        Bitmap result = null;
                         Image image = imageReader.acquireLatestImage();
                         if (image == null) {
 
                         } else {
-                            int width = image.getWidth();
+                            int width = imageReader.getWidth();
 
-                            int height = image.getHeight();
+                            int height = imageReader.getHeight();
 
                             final Image.Plane[] planes = image.getPlanes();
 
@@ -92,13 +106,18 @@ public class RxScreenShot {
 
                             bitmap.copyPixelsFromBuffer(buffer);
 
-                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+                            result = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+
+                            if (!bitmap.isRecycled()) {
+                                bitmap.recycle();
+                                bitmap = null;
+                            }
 
                             image.close();
                         }
 
 
-                        return bitmap == null ? new Object() : bitmap;
+                        return result == null ? new Object() : result;
                     }
                 });
     }
@@ -109,16 +128,12 @@ public class RxScreenShot {
                 .map(new Function<ImageReader, Object>() {
                     @Override
                     public Object apply(ImageReader imageReader) throws Exception {
-//                        String name = Thread.currentThread().getName();
-//                        String mImageName = System.currentTimeMillis() + ".png";
-//                        Log.e(TAG, "image name is : " + mImageName);
-//                        Log.e(TAG, "Thread currentThread is : " + name);
 
                         Image image = imageReader.acquireLatestImage();
 
-                        int width = image.getWidth();
+                        int width = imageReader.getWidth();
 
-                        int height = image.getHeight();
+                        int height = imageReader.getHeight();
 
                         final Image.Plane[] planes = image.getPlanes();
 
@@ -144,13 +159,17 @@ public class RxScreenShot {
     }
 
     public static Observable<Object> shoot(FragmentActivity activity) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager windowMgr = (WindowManager)activity.getSystemService(Context.WINDOW_SERVICE);
+        windowMgr.getDefaultDisplay().getRealMetrics(metrics);
+
         // 获取屏幕宽高
-        float widthPixels = activity.getResources().getDisplayMetrics().widthPixels;
-        float heightPixels = activity.getResources().getDisplayMetrics().heightPixels;
+        float widthPixels = metrics.widthPixels;
+        float heightPixels = metrics.heightPixels;
         if (heightPixels > MAX_IMAGE_HEIGHT) {
-            // height        MAX_IMAGE_HEIGHT
-            // -----   =    ----------------
-            // width        x
+            // heightPixels        MAX_IMAGE_HEIGHT
+            // ------------  =     ----------------
+            // widthPixels         x
             widthPixels = widthPixels * (float) MAX_IMAGE_HEIGHT / heightPixels;
             heightPixels = MAX_IMAGE_HEIGHT;
         }
@@ -159,8 +178,7 @@ public class RxScreenShot {
         int finalHeightPixels = (int) heightPixels;
         return MediaProjectionHelper
                 .requestCapture(activity)
-                .map(mediaProjection -> RxScreenShot.of(mediaProjection).createImageReader(finalWidthPixels, finalHeightPixels))
-                //.map(mediaProjection -> RxScreenShot.of(mediaProjection).createImageReader(widthPixels, heightPixels))
+                .map(mediaProjection -> RxScreenShot.of(mediaProjection).createImageReader(activity.getWindowManager(), finalWidthPixels, finalHeightPixels))
                 .flatMap(RxScreenShot::startCapture)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread());
