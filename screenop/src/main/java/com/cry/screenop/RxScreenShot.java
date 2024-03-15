@@ -37,7 +37,7 @@ public class RxScreenShot {
     SurfaceFactory mSurfaceFactory;
     ImageReader mImageReader;
 
-    public static final int MAX_IMAGE_HEIGHT = 1140;
+    public static final int MAX_IMAGE_HEIGHT = 480;
     public int width = 1080;
     public int height = 2280;
     public int dpi = 1;
