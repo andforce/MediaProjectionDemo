@@ -5,36 +5,38 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.cry.mediaprojectiondemo.socket.SocketIoManager
-import com.cry.screenop.RxScreenShot
+import com.cry.screenop.RecorderHelper
 import java.io.ByteArrayOutputStream
 
 class MediaProjectionSocketActivity : AppCompatActivity() {
-    private var isBack: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //connect to socket server
         Thread {
             SocketIoManager.connect()
         }.start()
 
         findViewById<Button>(R.id.btn_start).setOnClickListener {
-            //start to screenshot
-            RxScreenShot
-                    .shoot(this@MediaProjectionSocketActivity)
-                    .subscribe({ bitmap ->
-                        if (bitmap is Bitmap) {
-                            if (!isBack) {
-                                moveTaskToBack(true)
-                                isBack = true
-                            } else {
-                                sendBitmap(bitmap)
-                            }
-                        }
+            RecorderHelper.startRecording(this) {
+                sendBitmap(it)
+            }
 
-                    }, { e -> e.printStackTrace() })
+//            //start to screenshot
+//            RxScreenShot
+//                    .shoot(this@MediaProjectionSocketActivity)
+//                    .subscribe({ bitmap ->
+//                        if (bitmap is Bitmap) {
+//                            if (!isBack) {
+//                                moveTaskToBack(true)
+//                                isBack = true
+//                            } else {
+//                                sendBitmap(bitmap)
+//                            }
+//                        }
+//
+//                    }, { e -> e.printStackTrace() })
         }
     }
 
