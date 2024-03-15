@@ -31,9 +31,9 @@ import io.reactivex.schedulers.Schedulers;
 public class RxScreenShot {
     private String TAG = "RxScreenShot";
 
-    private Handler mCallBackHandler = new CallBackHandler();
-    private MediaCallBack mMediaCallBack = new MediaCallBack();
-    private MediaProjection mediaProjection;
+    private final Handler mCallBackHandler = new CallBackHandler();
+    private final MediaCallBack mMediaCallBack = new MediaCallBack();
+    private final MediaProjection mediaProjection;
     SurfaceFactory mSurfaceFactory;
     ImageReader mImageReader;
 
@@ -70,8 +70,8 @@ public class RxScreenShot {
         mediaProjection.registerCallback(mMediaCallBack, mCallBackHandler);
         int flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
 
-        mediaProjection.createVirtualDisplay(TAG + "-display", width, height, dpi,
-                flags,
+        mediaProjection.createVirtualDisplay(TAG + "-display",
+                width, height, dpi, flags,
                 mSurfaceFactory.getInputSurface(), null, null);
     }
 
@@ -122,42 +122,6 @@ public class RxScreenShot {
                 });
     }
 
-    public Observable<Object> startCaptureWithHW(int topStart, int totalHeight) {
-        return ImageReaderAvailableObservable.of(mImageReader, mCallBackHandler)
-                .observeOn(Schedulers.io())
-                .map(new Function<ImageReader, Object>() {
-                    @Override
-                    public Object apply(ImageReader imageReader) throws Exception {
-
-                        Image image = imageReader.acquireLatestImage();
-
-                        int width = imageReader.getWidth();
-
-                        int height = imageReader.getHeight();
-
-                        final Image.Plane[] planes = image.getPlanes();
-
-                        final ByteBuffer buffer = planes[0].getBuffer();
-
-                        int pixelStride = planes[0].getPixelStride();
-
-                        int rowStride = planes[0].getRowStride();
-
-                        int rowPadding = rowStride - pixelStride * width;
-
-                        Bitmap bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888);
-
-                        bitmap.copyPixelsFromBuffer(buffer);
-
-                        bitmap = Bitmap.createBitmap(bitmap, 0, topStart, width, totalHeight);
-
-                        image.close();
-
-                        return bitmap == null ? new Object() : bitmap;
-                    }
-                });
-    }
-
     public static Observable<Object> shoot(FragmentActivity activity) {
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager windowMgr = (WindowManager)activity.getSystemService(Context.WINDOW_SERVICE);
@@ -202,7 +166,7 @@ public class RxScreenShot {
         Surface getInputSurface();
     }
 
-    class ImageReaderSurface implements SurfaceFactory {
+    static class ImageReaderSurface implements SurfaceFactory {
 
         private ImageReader imageReader;
 
