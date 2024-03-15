@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.cry.mediaprojectiondemo"
-        minSdk 27
+        minSdk 28
         //noinspection ExpiredTargetSdkVersion,OldTargetApi
         targetSdk 27
         versionCode 1

@@ -11,7 +11,7 @@ class SocketClient {
 
     init {
         try {
-            socket = IO.socket("http://192.168.2.183:65535")
+            socket = IO.socket("http://10.66.32.51:65535")
 
 
 
