@@ -6,27 +6,17 @@
     <title>Image Receiver</title>
 </head>
 <body>
-<img id="screen" src="screen.png" alt="Screen Image">
+<img id="image" src="screen.png" alt="Image">
 
-<!-- 加载 Socket.io 客户端库 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
 
-
-<!-- Socket.io 相关 JavaScript 代码 -->
 <script>
-    console.log('==========>>> start socket.io');
-    const socket = io({transports:["polling"]});
-    console.log('==========>>> start socket.io' + socket);
+
+    const socket = io.connect('http://localhost:65535');
     socket.on('imageUpdated', function () {
-        window.location.reload()
+        const image = document.getElementById('image');
+        image.src = 'screen.png?' + new Date().getTime();
     });
 </script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log('==========>>> Page loaded');
-    });
-</script>
-
 </body>
 </html>
