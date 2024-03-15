@@ -33,20 +33,22 @@ public class RxScreenShot {
     SurfaceFactory mSurfaceFactory;
     ImageReader mImageReader;
 
+    public static final int MAX_IMAGE_HEIGHT = 2280 / 2;
     public int width = 1080;
     public int height = 2280;
     public int dpi = 1;
 
     private RxScreenShot(MediaProjection mediaProjection) {
-        this.mediaProjection =
-                mediaProjection;
+        this.mediaProjection = mediaProjection;
     }
 
     public static RxScreenShot of(MediaProjection mediaProjection) {
         return new RxScreenShot(mediaProjection);
     }
 
-    public RxScreenShot createImageReader() {
+    public RxScreenShot createImageReader(int width, int height) {
+        this.width = width;
+        this.height = height;
         //注意这里使用RGB565报错提示，只能使用RGBA_8888
         mImageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 5);
         mSurfaceFactory = new ImageReaderSurface(mImageReader);
@@ -142,9 +144,23 @@ public class RxScreenShot {
     }
 
     public static Observable<Object> shoot(FragmentActivity activity) {
+        // 获取屏幕宽高
+        float widthPixels = activity.getResources().getDisplayMetrics().widthPixels;
+        float heightPixels = activity.getResources().getDisplayMetrics().heightPixels;
+        if (heightPixels > MAX_IMAGE_HEIGHT) {
+            // height        MAX_IMAGE_HEIGHT
+            // -----   =    ----------------
+            // width        x
+            widthPixels = widthPixels * (float) MAX_IMAGE_HEIGHT / heightPixels;
+            heightPixels = MAX_IMAGE_HEIGHT;
+        }
+
+        int finalWidthPixels = (int) widthPixels;
+        int finalHeightPixels = (int) heightPixels;
         return MediaProjectionHelper
                 .requestCapture(activity)
-                .map(mediaProjection -> RxScreenShot.of(mediaProjection).createImageReader())
+                .map(mediaProjection -> RxScreenShot.of(mediaProjection).createImageReader(finalWidthPixels, finalHeightPixels))
+                //.map(mediaProjection -> RxScreenShot.of(mediaProjection).createImageReader(widthPixels, heightPixels))
                 .flatMap(RxScreenShot::startCapture)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread());
