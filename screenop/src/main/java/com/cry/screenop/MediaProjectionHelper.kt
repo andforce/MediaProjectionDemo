@@ -19,7 +19,6 @@ object MediaProjectionHelper {
         return context.applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
     }
 
-    @JvmStatic
     fun requestCapture(activity: FragmentActivity): Observable<MediaProjection?> {
         val mediaProjectionManager = getMediaProjectionManager(activity)
         return if (mediaProjectionManager == null) {

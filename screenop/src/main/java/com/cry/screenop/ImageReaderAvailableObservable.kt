@@ -44,13 +44,8 @@ class ImageReaderAvailableObservable private constructor(
     }
 
     companion object {
-        @JvmStatic
         fun of(imageReader: ImageReader): ImageReaderAvailableObservable {
             return ImageReaderAvailableObservable(imageReader, null)
-        }
-
-        fun of(imageReader: ImageReader, handler: Handler?): ImageReaderAvailableObservable {
-            return ImageReaderAvailableObservable(imageReader, handler)
         }
     }
 }

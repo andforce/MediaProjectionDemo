@@ -24,7 +24,6 @@ object ActivityResultRequest {
         return dispatcherFragment as OnActivityResultDispatcherFragment
     }
 
-    @JvmStatic
     fun rxQuest(activity: FragmentActivity, intent: Intent?): Observable<ResultEvent> {
         return Observable
             .just(activity)

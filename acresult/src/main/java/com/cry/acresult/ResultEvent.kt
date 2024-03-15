@@ -3,9 +3,7 @@ package com.cry.acresult
 import android.content.Intent
 
 class ResultEvent {
-    @JvmField
     var resultCode = 0
-    @JvmField
     var data: Intent? = null
 
     constructor()

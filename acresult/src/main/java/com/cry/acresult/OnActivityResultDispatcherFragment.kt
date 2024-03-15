@@ -41,7 +41,6 @@ class OnActivityResultDispatcherFragment : Fragment() {
 
     companion object {
         const val TAG = "com.cry.acresult.OnActivityResultDispatcherFragment"
-        @JvmField
         val AUTO_REQ_CODE = AtomicInteger(1000)
     }
 }
