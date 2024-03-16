@@ -13,7 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.andforce.socket.SocketIoManager
+import com.andforce.socket.SocketClient
 import com.cry.mediaprojectiondemo.databinding.MediaprojectionActivityMainBinding
 import com.cry.screenop.coroutine.RecordViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -27,6 +27,8 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
 
     private var mpm: MediaProjectionManager? = null
     private var viewModel: RecordViewModel? = null
+
+    private var socketClient: SocketClient = SocketClient("http://192.168.2.183:3001")
 
     private lateinit var viewMainBinding: MediaprojectionActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,9 +59,8 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
 
         mpm = applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
 
-        Thread {
-            SocketIoManager.connect()
-        }.start()
+        socketClient.startConnection()
+
 
         val launcher: ActivityResultLauncher<Intent> = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -89,13 +90,13 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
     //bitmap to byteArray to send through socket
     private fun sendBitmap(it: Bitmap) {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        it.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        it.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
-        SocketIoManager.send(byteArray)
+        socketClient.send(byteArray)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        SocketIoManager.release()
+        socketClient.release()
     }
 }

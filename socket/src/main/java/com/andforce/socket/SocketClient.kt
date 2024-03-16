@@ -5,20 +5,18 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 
-class SocketClient {
+class SocketClient(url: String) {
     private var socket: Socket? = null
 
     init {
         try {
-            socket = IO.socket("http://192.168.2.183:3001")
+            socket = IO.socket(url)
         } catch (e: Exception) {
             Log.e("SocketClient", e.toString())
         }
     }
 
-
     fun startConnection() {
-        Thread.sleep(1000)
         socket?.on(Socket.EVENT_CONNECT, Emitter.Listener {
             Log.d("SocketClient", "connect")
         })
@@ -32,9 +30,8 @@ class SocketClient {
         })
 
         socket?.connect()
-        Thread.sleep(1000)
     }
-    fun send(bitmapArray: ByteArray?) {
+    fun send(bitmapArray: ByteArray) {
         socket?.emit("image", bitmapArray)
     }
 
