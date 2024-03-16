@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.cry.mediaprojectiondemo.databinding.MediaprojectionActivityMainBinding
 import com.cry.mediaprojectiondemo.socket.SocketIoManager
 import com.cry.screenop.coroutine.RecordViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -27,9 +28,14 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
     private var mpm: MediaProjectionManager? = null
     private var viewModel: RecordViewModel? = null
 
+    private lateinit var viewMainBinding: MediaprojectionActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        MediaprojectionActivityMainBinding.inflate(layoutInflater).apply {
+            viewMainBinding = this
+        }.root.also {
+            setContentView(it)
+        }
 
         ViewModelProvider(this)[RecordViewModel::class.java].apply {
             viewModel = this
