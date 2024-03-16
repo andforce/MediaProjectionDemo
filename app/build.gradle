@@ -48,7 +48,7 @@ dependencies {
 
 
     // 引入协程
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     // 引入LiveData、Flow

@@ -1,6 +1,6 @@
 var ios = require('socket.io-client');
 
-const socket_client = ios('http://10.66.32.51:65535');
+const socket_client = ios('http://192.168.2.161:65535');
 
 
 socket_client.on('connect', function () {

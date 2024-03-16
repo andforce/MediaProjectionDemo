@@ -10,7 +10,7 @@ class SocketClient {
 
     init {
         try {
-            socket = IO.socket("http://10.66.32.51:3001")
+            socket = IO.socket("http://192.168.2.183:3001")
         } catch (e: Exception) {
             Log.e("SocketClient", e.toString())
         }
@@ -35,12 +35,6 @@ class SocketClient {
         Thread.sleep(1000)
     }
     fun send(bitmapArray: ByteArray?) {
-//        if (!mSocketReady) {
-//            return
-//        }
-//        if (bitmapArray != null) {
-//            mSocket.emit("event", *bitmapArray)
-//        }
         socket?.emit("image", bitmapArray)
     }
 

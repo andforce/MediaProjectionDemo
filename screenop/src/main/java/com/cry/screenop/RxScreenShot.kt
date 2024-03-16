@@ -9,9 +9,8 @@ import android.os.Handler
 import android.os.Message
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.Surface
 import android.view.WindowManager
-import com.cry.screenop.ImageReaderAvailableObservable.Companion.of
+import com.cry.screenop.image.ImageAvailableObservable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -20,7 +19,6 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
 
     private val callBackHandler: Handler = CallBackHandler()
     private val mediaCallBack = MediaCallBack()
-    private var surfaceFactory: SurfaceFactory? = null
     private var imageReader: ImageReader? = null
 
     private val metrics = DisplayMetrics()
@@ -37,7 +35,6 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
 
         //注意这里使用RGB565报错提示，只能使用RGBA_8888
         imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 5)
-        surfaceFactory = ImageReaderSurface(imageReader!!)
         createProject(width, height, dpi)
         return this
     }
@@ -49,12 +46,12 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
         mediaProjection.createVirtualDisplay(
             "$TAG-display",
             width, height, dpi, flags,
-            surfaceFactory!!.inputSurface, null, null
+            imageReader!!.surface, null, null
         )
     }
 
     fun startCapture(): Observable<Bitmap?> {
-        return of(imageReader!!).map { imageReader ->
+        return ImageAvailableObservable(imageReader!!).map { imageReader ->
                 val mImageName = System.currentTimeMillis().toString() + ".jpeg"
                 Log.e(TAG, "image name is : $mImageName")
                 var result: Bitmap? = null
@@ -101,33 +98,17 @@ class RxScreenShot private constructor(private val mediaProjection: MediaProject
         }
     }
 
-    interface SurfaceFactory {
-        val inputSurface: Surface?
-    }
-
-    internal class ImageReaderSurface(private val imageReader: ImageReader) : SurfaceFactory {
-        override val inputSurface: Surface?
-            get() = imageReader.surface
-    }
-
     companion object {
-        private fun requestCapture(mp: MediaProjection): Observable<MediaProjection?> {
-            return Observable.just(mp)
-        }
 
         fun shoot(windowMgr: WindowManager, finalWidthPixels: Int, finalHeightPixels: Int, mp: MediaProjection): Observable<Bitmap?> {
 
-            return requestCapture(mp)
-                .map { mediaProjection: MediaProjection ->
-                    RxScreenShot(mediaProjection)
-                        .createImageReader(
-                            windowMgr,
-                            finalWidthPixels,
-                            finalHeightPixels
-                        )
-                }
-                .flatMap { obj: RxScreenShot -> obj.startCapture() }
-                .subscribeOn(AndroidSchedulers.mainThread())
+            return Observable.just(mp).map {
+                RxScreenShot(it).createImageReader(
+                    windowMgr, finalWidthPixels, finalHeightPixels
+                )
+            }.flatMap {
+                it.startCapture()
+            }.subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
         }
     }

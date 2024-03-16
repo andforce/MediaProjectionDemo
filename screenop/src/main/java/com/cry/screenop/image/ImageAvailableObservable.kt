@@ -1,4 +1,4 @@
-package com.cry.screenop
+package com.cry.screenop.image
 
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
@@ -8,21 +8,18 @@ import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.atomic.AtomicBoolean
 
-/**
- * Created by a2957 on 4/21/2018.
- */
-class ImageReaderAvailableObservable private constructor(
+open class ImageAvailableObservable(
     private val imageReader: ImageReader,
-    private val handler: Handler?
-) : Observable<ImageReader?>() {
-    override fun subscribeActual(observer: Observer<in ImageReader?>) {
+    private val handler: Handler? = null
+) : Observable<ImageReader>() {
+    override fun subscribeActual(observer: Observer<in ImageReader>) {
         val listener = Listener(observer, imageReader)
         observer.onSubscribe(listener)
         imageReader.setOnImageAvailableListener(listener, handler)
     }
 
     internal class Listener(
-        private val observer: Observer<in ImageReader?>,
+        private val observer: Observer<in ImageReader>,
         private val mImageReader: ImageReader
     ) : Disposable, OnImageAvailableListener {
         private val unsubscribed = AtomicBoolean()
@@ -40,12 +37,6 @@ class ImageReaderAvailableObservable private constructor(
 
         override fun isDisposed(): Boolean {
             return unsubscribed.get()
-        }
-    }
-
-    companion object {
-        fun of(imageReader: ImageReader): ImageReaderAvailableObservable {
-            return ImageReaderAvailableObservable(imageReader, null)
         }
     }
 }
