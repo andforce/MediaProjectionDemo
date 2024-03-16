@@ -3,14 +3,13 @@ package com.cry.screenop.coroutine
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.projection.MediaProjection
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class RecordViewModel : ViewModel() {
+class RecordViewModel(private val scope: CoroutineScope) {
 
     private val repo: RecordRepository = RecordRepository()
 
@@ -21,7 +20,7 @@ class RecordViewModel : ViewModel() {
         val handler = CoroutineExceptionHandler { _, exception ->
             println("Caught $exception")
         }
-        viewModelScope.launch(handler) {
+        scope.launch(handler) {
             repo.captureBitmap(context.applicationContext, mp, scale).collect() {
                 _capturedImage.value = it
             }
