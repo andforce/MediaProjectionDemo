@@ -1,4 +1,4 @@
-package com.cry.mediaprojectiondemo
+package com.andforce.socket
 
 import android.util.Log
 import io.socket.client.IO

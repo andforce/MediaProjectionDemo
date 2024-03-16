@@ -31,6 +31,7 @@ io.sockets.on('connection', function(socket) {
     });
     //user leaves
     socket.on('disconnect', function() {
+        console.log('a user disconnected');
         if (socket.nickname != null) {
             //users.splice(socket.userIndex, 1);
             users.splice(users.indexOf(socket.nickname), 1);

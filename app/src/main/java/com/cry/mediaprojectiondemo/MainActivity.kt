@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.cry.mediaprojectiondemo.socket.SocketIoManager
+import com.andforce.socket.SocketIoManager
 
 class MainActivity : AppCompatActivity() {
 

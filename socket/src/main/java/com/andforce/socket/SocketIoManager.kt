@@ -1,6 +1,5 @@
-package com.cry.mediaprojectiondemo.socket
+package com.andforce.socket
 
-import com.cry.mediaprojectiondemo.SocketClient
 object SocketIoManager {
     private var socketClient: SocketClient = SocketClient()
 

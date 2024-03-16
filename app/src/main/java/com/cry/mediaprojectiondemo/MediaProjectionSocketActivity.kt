@@ -13,8 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.andforce.socket.SocketIoManager
 import com.cry.mediaprojectiondemo.databinding.MediaprojectionActivityMainBinding
-import com.cry.mediaprojectiondemo.socket.SocketIoManager
 import com.cry.screenop.coroutine.RecordViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
