@@ -1,15 +1,12 @@
-package com.cry.screenop
+package com.cry.screenop.coroutine
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
 import androidx.activity.result.ActivityResult
+import com.cry.screenop.RecorderHelper
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
-import java.util.concurrent.Flow
 
 // https://www.jianshu.com/p/281093cabbc7
 class RecordDataSource(

@@ -38,7 +38,7 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
                     Toast.makeText(this, "User granted permission", Toast.LENGTH_SHORT).show()
                 } else {
                     mpm?.getMediaProjection(result.resultCode, result.data!!)?.let { mp ->
-                        RecorderHelper.startRecording(applicationContext, 0.35f, mp) { data->
+                        RecorderHelper.startRecording2(applicationContext, 0.35f, mp) { data->
                             data?.let {
                                 sendBitmap(data)
                             }
