@@ -1,49 +1,47 @@
 package com.cry.mediaprojectiondemo
 
-import android.content.Context
-import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.cry.mediaprojectiondemo.databinding.MediaprojectionActivityMainBinding
+import kotlinx.coroutines.launch
 
 
 class MediaProjectionSocketActivity : AppCompatActivity() {
 
-    private var mpm: MediaProjectionManager? = null
     private lateinit var viewMainBinding: MediaprojectionActivityMainBinding
 
+    private lateinit var viewModel: MediaProjectionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MediaprojectionActivityMainBinding.inflate(layoutInflater).apply {
-            viewMainBinding = this
-        }.root.also {
-            setContentView(it)
+        viewMainBinding = MediaprojectionActivityMainBinding.inflate(layoutInflater).also {
+            setContentView(it.root)
         }
 
-        val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            when (it.resultCode) {
-                RESULT_OK -> {
-                    it.data?.let { data ->
-                        CastService.startService(this, data, it.resultCode)
-                    } ?: run {
-                        Toast.makeText(this, "User granted permission", Toast.LENGTH_SHORT).show()
-                    }
-                }
+        viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MediaProjectionViewModel(this@MediaProjectionSocketActivity) as T
+            }
+        })[MediaProjectionViewModel::class.java]
 
-                else -> {
+        viewModel.result.observe(this) {
+            when (it) {
+                is MediaProjectionViewModel.Result.Success -> {
+                    CastService.startService(this, it.data, it.resultCode)
+                }
+                MediaProjectionViewModel.Result.PermissionDenied -> {
                     Toast.makeText(this, "User did not grant permission", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
 
-        mpm = applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
-
         viewMainBinding.btnStart.setOnClickListener {
-            mpm?.createScreenCaptureIntent()?.let {
-                launcher.launch(it)
+            lifecycleScope.launch {
+                viewModel.createScreenCaptureIntent()
             }
         }
     }
