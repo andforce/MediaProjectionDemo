@@ -49,9 +49,19 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
 
         lifecycleScope.launch(handler) {
             viewModel?.capturedImage?.collect {
-                it?.let {
+                it?.let { bitmap->
                     withContext(Dispatchers.IO) {
-                        sendBitmap(it)
+                        val byteArrayOutputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, byteArrayOutputStream)
+                        val byteArray = byteArrayOutputStream.toByteArray()
+
+                        socketClient.send(byteArray)
+                        runCatching {
+                            byteArrayOutputStream.close()
+                        }
+                        if (bitmap.isRecycled.not()) {
+                            bitmap.recycle()
+                        }
                     }
                 }
             }
@@ -86,14 +96,6 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
         }
     }
 
-
-    //bitmap to byteArray to send through socket
-    private fun sendBitmap(it: Bitmap) {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        it.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
-        val byteArray = byteArrayOutputStream.toByteArray()
-        socketClient.send(byteArray)
-    }
 
     override fun onDestroy() {
         super.onDestroy()
