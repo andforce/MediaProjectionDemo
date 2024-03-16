@@ -4,10 +4,6 @@ import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
 import android.media.projection.MediaProjection
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import android.util.Log
 
 class VirtualDisplayImageReader(
     private val mediaProjection: MediaProjection
@@ -39,16 +35,9 @@ class VirtualDisplayImageReader(
         }
     }
 
-    private val callBackHandler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            Log.i(TAG, "handleMessage: $msg")
-        }
-    }
-
     fun registerListener(imageListener: OnImageListener) {
         this.imageListener = imageListener
-        mediaProjection.registerCallback(mediaCallBack, callBackHandler)
+        mediaProjection.registerCallback(mediaCallBack, null)
 
         imageReader?.setOnImageAvailableListener(listener, null)
     }
