@@ -32,13 +32,19 @@ class CastService: Service() {
     private var socketClient: SocketClient = SocketClient("http://192.168.2.183:3001")
     companion object {
         const val NOTIFICATION_ID = 1
+        // 启动方法
+        fun startService(context: Context, data: Intent, code: Int) {
+            val startIntent = Intent(context.applicationContext, CastService::class.java)
+            startIntent.putExtra("data", data)
+            startIntent.putExtra("code", code)
+            context.applicationContext.startForegroundService(startIntent)
+        }
     }
 
     private var job: Job? = null
 
     private val mainScope = MainScope()
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
 
