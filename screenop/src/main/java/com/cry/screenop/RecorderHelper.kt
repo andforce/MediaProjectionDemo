@@ -5,12 +5,13 @@ import android.graphics.Bitmap
 import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import com.cry.screenop.listener.OnBitmapListener
 import com.cry.screenop.listener.ScreenShot2
 import com.cry.screenop.rxjava.RxScreenShot
 
 object RecorderHelper {
 
-    fun startRecording2(context: Context, scale: Float, mp: MediaProjection, action: (Bitmap?) -> Unit) {
+    fun startRecording2(context: Context, scale: Float, mp: MediaProjection, action: OnBitmapListener?) {
 
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -20,18 +21,17 @@ object RecorderHelper {
         val finalWidthPixels = (metrics.widthPixels * scale).toInt()
         val finalHeightPixels = (metrics.heightPixels * scale).toInt()
 
-        startRecording2(context, finalWidthPixels, finalHeightPixels, mp, action)
+        ScreenShot2(context, mp).apply {
+            start(finalWidthPixels, finalHeightPixels)
+            action?.let { registerBitmapListener(it) }
+        }
     }
 
-    fun startRecording2(context: Context, width: Int, height: Int, mp: MediaProjection, action: (Bitmap?) -> Unit) {
+    fun startRecording2(context: Context, width: Int, height: Int, mp: MediaProjection, action: OnBitmapListener?) {
 
         ScreenShot2(context, mp).apply {
             start(width, height)
-            registerBitmapListener(object : com.cry.screenop.listener.OnBitmapListener {
-                override fun onBitmap(bitmap: Bitmap) {
-                    action(bitmap)
-                }
-            })
+            action?.let { registerBitmapListener(it) }
         }
     }
 

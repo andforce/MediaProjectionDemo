@@ -96,6 +96,7 @@ class ScreenShot2(
     internal inner class MediaCallBack : MediaProjection.Callback() {
         override fun onStop() {
             super.onStop()
+            bitmapListener?.onFinished()
         }
     }
 
