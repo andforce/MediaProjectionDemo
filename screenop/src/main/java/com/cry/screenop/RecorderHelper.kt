@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import com.cry.screenop.rxjava.RxScreenShot
 
 object RecorderHelper {
 

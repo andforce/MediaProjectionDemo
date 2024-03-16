@@ -1,4 +1,4 @@
-package com.cry.screenop
+package com.cry.screenop.rxjava
 
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
@@ -10,7 +10,7 @@ import android.os.Message
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
-import com.cry.screenop.image.ImageAvailableObservable
+import com.cry.screenop.rxjava.image.ImageAvailableObservable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
