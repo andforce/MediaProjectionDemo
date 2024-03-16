@@ -12,20 +12,21 @@ import kotlinx.coroutines.launch
 
 class MediaProjectionSocketActivity : AppCompatActivity() {
 
-    private lateinit var viewMainBinding: MediaprojectionActivityMainBinding
-
-    private lateinit var viewModel: MediaProjectionViewModel
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewMainBinding = MediaprojectionActivityMainBinding.inflate(layoutInflater).also {
-            setContentView(it.root)
-        }
-
-        viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
+    private val viewModel by lazy {
+        ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return MediaProjectionViewModel(this@MediaProjectionSocketActivity) as T
             }
         })[MediaProjectionViewModel::class.java]
+    }
+
+    private val viewMainBinding by lazy {
+        MediaprojectionActivityMainBinding.inflate(layoutInflater)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(viewMainBinding.root)
 
         viewModel.result.observe(this) {
             when (it) {
@@ -37,7 +38,6 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
                 }
             }
         }
-
 
         viewMainBinding.btnStart.setOnClickListener {
             lifecycleScope.launch {

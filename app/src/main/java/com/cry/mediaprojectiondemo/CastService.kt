@@ -3,7 +3,6 @@ package com.cry.mediaprojectiondemo
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -15,9 +14,7 @@ import android.widget.Toast
 import com.andforce.socket.SocketClient
 import com.cry.screenop.coroutine.RecordViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
