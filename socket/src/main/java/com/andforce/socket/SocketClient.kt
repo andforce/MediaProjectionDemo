@@ -21,12 +21,16 @@ class SocketClient(url: String) {
             Log.d("SocketClient", "connect")
         })
 
-        socket?.on("event", Emitter.Listener { args ->
-            Log.d("SocketClient", args[0].toString())
-        })
-
         socket?.on(Socket.EVENT_DISCONNECT, Emitter.Listener {
             Log.d("SocketClient", "disconnect")
+        })
+
+        socket?.on(Socket.EVENT_CONNECT_ERROR, Emitter.Listener {
+            Log.d("SocketClient", "connect error")
+        })
+
+        socket?.on("event", Emitter.Listener { args ->
+            Log.d("SocketClient", args[0].toString())
         })
 
         socket?.connect()
@@ -37,10 +41,12 @@ class SocketClient(url: String) {
 
     fun release() {
 
-        socket?.disconnect()
         socket?.off(Socket.EVENT_CONNECT)
+        socket?.off(Socket.EVENT_CONNECT_ERROR)
         socket?.off(Socket.EVENT_DISCONNECT)
         socket?.off("event")
+
+        socket?.disconnect()
         socket?.close()
     }
 }
