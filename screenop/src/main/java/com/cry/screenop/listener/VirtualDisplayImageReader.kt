@@ -1,39 +1,28 @@
 package com.cry.screenop.listener
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
-import android.util.DisplayMetrics
 import android.util.Log
-import android.view.WindowManager
 
-class ScreenShot2(
-    private val context: Context,
+class VirtualDisplayImageReader(
     private val mediaProjection: MediaProjection) {
-    private val TAG = "RxScreenShot"
+
+    companion object {
+        const val TAG = "VirtualDisplayImageReader"
+    }
 
     private val callBackHandler: Handler = CallBackHandler()
     private val mediaCallBack = MediaCallBack()
     private var imageReader: ImageReader? = null
     private var bitmapListener: OnBitmapListener? = null
 
-    private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-    private val metrics = DisplayMetrics()
-
-    private var dpi = 1
-
-    init {
-        windowManager.defaultDisplay.getRealMetrics(metrics)
-        dpi = metrics.densityDpi
-    }
-
-    fun start(width: Int, height: Int) {
+    fun start(width: Int, height: Int, dpi: Int) {
         imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 5)
 
         val flags =
@@ -57,10 +46,10 @@ class ScreenShot2(
     }
 
     private val listener = ImageReader.OnImageAvailableListener { reader ->
-        val mImageName = System.currentTimeMillis().toString() + ".jpeg"
-        Log.e(TAG, "image name is : $mImageName")
         var result: Bitmap? = null
         val image = reader.acquireLatestImage()
+
+        Log.i(TAG, "acquireLatestImage : w:${image.width}, h:${image.height}, t:${image.timestamp}")
 
         image?.let {
             val width = image.width
@@ -100,9 +89,10 @@ class ScreenShot2(
         }
     }
 
-    internal class CallBackHandler : Handler() {
+    internal class CallBackHandler : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
+            Log.i(TAG, "handleMessage: $msg")
         }
     }
 }

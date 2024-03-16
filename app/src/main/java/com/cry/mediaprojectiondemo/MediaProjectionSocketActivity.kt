@@ -15,9 +15,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.cry.mediaprojectiondemo.socket.SocketIoManager
 import com.cry.screenop.coroutine.RecordViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-
 
 
 class MediaProjectionSocketActivity : AppCompatActivity() {
@@ -33,6 +35,20 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
             viewModel = this
         }
 
+        val handler = CoroutineExceptionHandler { _, exception ->
+            println("Caught $exception")
+        }
+
+        lifecycleScope.launch(handler) {
+            viewModel?.capturedImage?.collect {
+                it?.let {
+                    withContext(Dispatchers.IO) {
+                        sendBitmap(it)
+                    }
+                }
+            }
+        }
+
         mpm = applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
 
         Thread {
@@ -43,26 +59,13 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
             ActivityResultContracts.StartActivityForResult()
         ) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
-                viewModel?.captureImages(this, mpm!!.getMediaProjection(result.resultCode, result.data!!), 0.35f)
-                lifecycleScope.launch {
-                    viewModel?.capturedImage?.collect {
-                        it?.let {
-                            sendBitmap(it)
-                        }
+                if (result.data == null) {
+                    Toast.makeText(this, "User granted permission", Toast.LENGTH_SHORT).show()
+                } else {
+                    mpm?.getMediaProjection(result.resultCode, result.data!!)?.let { mp ->
+                        viewModel?.startCaptureImages(this, mp, 0.35f)
                     }
                 }
-
-//                if (result.data == null) {
-//                    Toast.makeText(this, "User granted permission", Toast.LENGTH_SHORT).show()
-//                } else {
-//                    mpm?.getMediaProjection(result.resultCode, result.data!!)?.let { mp ->
-////                        RecorderHelper.startRecording2(applicationContext, 0.35f, mp) { data->
-////                            data?.let {
-////                                sendBitmap(data)
-////                            }
-////                        }
-//                    }
-//                }
             } else {
                 Toast.makeText(this, "User did not grant permission", Toast.LENGTH_SHORT).show()
             }

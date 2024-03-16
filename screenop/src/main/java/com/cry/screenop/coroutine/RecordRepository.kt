@@ -5,9 +5,10 @@ import android.graphics.Bitmap
 import android.media.projection.MediaProjection
 import kotlinx.coroutines.flow.Flow
 
-class RecordRepository() {
+class RecordRepository {
+
+    private val recordDataSource = RecordDataSource()
     suspend fun captureImages(context: Context, mp: MediaProjection, scale: Float): Flow<Bitmap> {
-        val recordDataSource = RecordDataSource(context)
-        return recordDataSource.captureImages(mp, scale)
+        return recordDataSource.captureImages(context, mp, scale)
     }
 }

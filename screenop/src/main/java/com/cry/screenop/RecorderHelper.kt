@@ -6,7 +6,7 @@ import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import com.cry.screenop.listener.OnBitmapListener
-import com.cry.screenop.listener.ScreenShot2
+import com.cry.screenop.listener.VirtualDisplayImageReader
 import com.cry.screenop.rxjava.RxScreenShot
 
 object RecorderHelper {
@@ -21,16 +21,16 @@ object RecorderHelper {
         val finalWidthPixels = (metrics.widthPixels * scale).toInt()
         val finalHeightPixels = (metrics.heightPixels * scale).toInt()
 
-        ScreenShot2(context, mp).apply {
-            start(finalWidthPixels, finalHeightPixels)
+        VirtualDisplayImageReader(mp).apply {
+            start(finalWidthPixels, finalHeightPixels, metrics.densityDpi)
             action?.let { registerBitmapListener(it) }
         }
     }
 
-    fun startRecording2(context: Context, width: Int, height: Int, mp: MediaProjection, action: OnBitmapListener?) {
+    fun startRecording2(width: Int, height: Int, dp: Int, mp: MediaProjection, action: OnBitmapListener?) {
 
-        ScreenShot2(context, mp).apply {
-            start(width, height)
+        VirtualDisplayImageReader(mp).apply {
+            start(width, height, dp)
             action?.let { registerBitmapListener(it) }
         }
     }
