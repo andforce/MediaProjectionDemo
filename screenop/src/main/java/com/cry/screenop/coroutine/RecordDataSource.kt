@@ -1,11 +1,11 @@
 package com.cry.screenop.coroutine
 
 import android.content.Context
-import android.graphics.Bitmap
+import android.media.Image
 import android.media.projection.MediaProjection
 import android.util.DisplayMetrics
 import android.view.WindowManager
-import com.cry.screenop.listener.OnBitmapListener
+import com.cry.screenop.listener.OnImageListener
 import com.cry.screenop.listener.VirtualDisplayImageReader
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.callbackFlow
 
 class RecordDataSource {
 
-    suspend fun captureImages(context: Context, mp:MediaProjection, scale: Float) = callbackFlow<Bitmap> {
+    suspend fun captureImages(context: Context, mp:MediaProjection, scale: Float) = callbackFlow<Image> {
 
-        val callback = object: OnBitmapListener {
-            override fun onBitmap(bitmap: Bitmap) {
-                trySendBlocking(bitmap)
+        val callback = object: OnImageListener {
+            override fun onImage(image: Image) {
+                trySendBlocking(image)
             }
 
             override fun onFinished() {
@@ -45,11 +45,11 @@ class RecordDataSource {
 
         val virtualDisplayImageReader = VirtualDisplayImageReader(mp).apply {
             start(finalWidthPixels, finalHeightPixels, metrics.densityDpi)
-            registerBitmapListener(callback)
+            registerListener(callback)
         }
 
         awaitClose {
-            virtualDisplayImageReader.unregisterBitmapListener()
+            virtualDisplayImageReader.unregisterListener()
         }
     }
 }

@@ -22,7 +22,7 @@ class RecordViewModel : ViewModel() {
             println("Caught $exception")
         }
         viewModelScope.launch(handler) {
-            repo.captureImages(context.applicationContext, mp, scale).collect() {
+            repo.captureBitmap(context.applicationContext, mp, scale).collect() {
                 _capturedImage.value = it
             }
         }
