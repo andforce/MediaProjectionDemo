@@ -47,6 +47,9 @@ class VirtualDisplayImageReader(
     }
 
     private val listener = ImageReader.OnImageAvailableListener { reader ->
-        imageListener?.onImage(reader.acquireLatestImage())
+        if (reader != null) {
+            val image = reader.acquireLatestImage()
+            imageListener?.onImage(image)
+        }
     }
 }

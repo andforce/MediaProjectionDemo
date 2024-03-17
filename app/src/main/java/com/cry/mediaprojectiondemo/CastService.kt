@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.projection.MediaProjectionManager
 import android.os.IBinder
+import android.util.Log
 import android.widget.Toast
 import com.andforce.socket.SocketClient
 import com.cry.screenop.coroutine.RecordViewModel
@@ -19,12 +20,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import java.io.ByteArrayOutputStream
 
 
 class CastService: Service() {
     private var mpm: MediaProjectionManager? = null
-    private var viewModel: RecordViewModel? = null
+    private val viewModel: RecordViewModel by inject()
 
     private var socketClient: SocketClient = SocketClient("http://192.168.2.183:3001")
     companion object {
@@ -47,7 +49,7 @@ class CastService: Service() {
 
         startForeground(NOTIFICATION_ID, createNotification())
 
-        viewModel = RecordViewModel(mainScope)
+        Log.d("RecordViewModel", "RecordViewModel2: $viewModel")
 
         val handler = CoroutineExceptionHandler { _, exception ->
             println("Caught $exception")
@@ -58,7 +60,7 @@ class CastService: Service() {
                 it?.let { bitmap->
                     withContext(Dispatchers.IO) {
                         val byteArrayOutputStream = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, byteArrayOutputStream)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
                         val byteArray = byteArrayOutputStream.toByteArray()
 
                         socketClient.send(byteArray)
@@ -80,6 +82,7 @@ class CastService: Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        viewModel.updateRecordState(RecordViewModel.RecordState.Stopped)
         socketClient.release()
         job?.cancel()
     }
@@ -103,7 +106,8 @@ class CastService: Service() {
         }
 
         mpm?.getMediaProjection(code, data)?.let { mp ->
-            viewModel?.startCaptureImages(this, mp, 0.35f)
+            viewModel.startCaptureImages(this, mp, 0.35f)
+            viewModel.updateRecordState(RecordViewModel.RecordState.Recording)
         }
 
         return START_STICKY
