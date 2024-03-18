@@ -44,7 +44,7 @@ class SocketClient(url: String) {
             Log.d("SocketClient", args[0].toString())
         })
 
-        socket?.on("mousedown", Emitter.Listener { args ->
+        socket?.on("mouse-down", Emitter.Listener { args ->
             val data = args[0] as JSONObject
             val down = MouseEvent.Down(data.getInt("x"), data.getInt("y"), data.getInt("width"), data.getInt("height"))
             Log.d("SocketClient", "mousedown" + args[0].toString())
@@ -64,6 +64,13 @@ class SocketClient(url: String) {
             val down = MouseEvent.Move(data.getInt("x"), data.getInt("y"), data.getInt("width"), data.getInt("height"))
             mouseEventListener?.onMove(down)
         })
+        // mouse-click
+//        socket?.on("mouse-click", Emitter.Listener { args ->
+//            Log.d("SocketClient", "mouse-click" + args[0].toString())
+//            val data = args[0] as JSONObject
+//            val down = MouseEvent.Click(data.getInt("x"), data.getInt("y"), data.getInt("width"), data.getInt("height"))
+//            mouseEventListener?.onClick(down)
+//        })
         socket?.connect()
     }
     fun send(bitmapArray: ByteArray) {

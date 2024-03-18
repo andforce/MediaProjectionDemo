@@ -8,12 +8,10 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import androidx.core.content.getSystemService
 import com.cry.mediaprojectiondemo.socket.SocketViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -27,6 +25,8 @@ class AutoTouchService : AccessibilityService() {
 
     private var finalWidthPixels = 1
     private var finalHeightPixels = 1
+    private val path = Path()
+    private var lastTimeStamp = 0L
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
@@ -46,13 +46,47 @@ class AutoTouchService : AccessibilityService() {
         job = GlobalScope.launch {
             socketViewModel.eventFlow.collect {
 
-                Log.d("AutoTouchService", "collect MouseEvent: $it")
+                it?.let {
+                    //Log.d("AutoTouchService", "collect MouseEvent: $it")
+                    if (lastTimeStamp == 0L) {
+                        lastTimeStamp = System.currentTimeMillis()
+                    }
 
-                if (it is com.andforce.socket.MouseEvent.Down) {
-                    val scaleW = finalWidthPixels / it.remoteWidth.toFloat()
-                    val scaleH = finalHeightPixels / it.remoteHeight.toFloat()
-                    Log.d("AutoTouchService", "collect click: scale ${scaleW},${scaleH} ${it.x * scaleW}, ${it.y * scaleH}")
-                    performClick(it.x * scaleW, it.y * scaleH)
+
+
+                    when (it) {
+                        is com.andforce.socket.MouseEvent.Down -> {
+                            lastTimeStamp = System.currentTimeMillis()
+                            path.reset()
+                            val scaleW = finalWidthPixels / it.remoteWidth.toFloat()
+                            val scaleH = finalHeightPixels / it.remoteHeight.toFloat()
+                            val fromRealX = it.x * scaleW
+                            val fromRealY = it.y * scaleH
+                            path.moveTo(fromRealX, fromRealY)
+
+                        }
+                        is com.andforce.socket.MouseEvent.Move -> {
+                            val scaleW = finalWidthPixels / it.remoteWidth.toFloat()
+                            val scaleH = finalHeightPixels / it.remoteHeight.toFloat()
+                            val fromRealX = it.x * scaleW
+                            val fromRealY = it.y * scaleH
+                            path.lineTo(fromRealX, fromRealY)
+                        }
+                        is com.andforce.socket.MouseEvent.Up -> {
+                            if (path.isEmpty) {
+                                return@collect
+                            }
+                            val currentTime = System.currentTimeMillis()
+                            var duration = if (currentTime - lastTimeStamp < 25) 25 else currentTime - lastTimeStamp
+                            if (duration > 500) {
+                                duration = 500
+                            }
+
+                            Log.d("AutoTouchService", "UP duration: $duration")
+
+                            dispatchMouseGesture(0, duration)
+                        }
+                    }
                 }
             }
         }
@@ -64,18 +98,16 @@ class AutoTouchService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        Log.d("AutoTouchService", "onAccessibilityEvent: $event")
+        //Log.d("AutoTouchService", "onAccessibilityEvent: $event")
     }
 
     override fun onInterrupt() {
         Log.d("AutoTouchService", "onInterrupt")
     }
 
-    private fun performClick(x: Float, y: Float) {
-        val path = Path()
-        path.moveTo(x, y)
+    private fun dispatchMouseGesture(startTime: Long, duration: Long) {
         val gestureDescription = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 0, 1))
+            .addStroke(GestureDescription.StrokeDescription(path, startTime, duration))
             .build()
         dispatchGesture(gestureDescription, null, null)
     }

@@ -17,18 +17,6 @@ server.listen(process.env.PORT || 3001);//publish to heroku
 io.sockets.on('connection', function(socket) {
     console.log('a user connected');
 
-    //new user login
-    socket.on('login', function(nickname) {
-        if (users.indexOf(nickname) > -1) {
-            socket.emit('nickExisted');
-        } else {
-            //socket.userIndex = users.length;
-            socket.nickname = nickname;
-            users.push(nickname);
-            socket.emit('loginSuccess');
-            io.sockets.emit('system', nickname, users.length, 'login');
-        }
-    });
     //user leaves
     socket.on('disconnect', function() {
         console.log('a user disconnected');
@@ -38,14 +26,11 @@ io.sockets.on('connection', function(socket) {
             socket.broadcast.emit('system', socket.nickname, users.length, 'logout');
         }
     });
-    //new message get
-    socket.on('postMsg', function(msg, color) {
-        socket.broadcast.emit('newMsg', socket.nickname, msg, color);
-    });
+
     // on mousedown
-    socket.on('mousedown', function(data) {
+    socket.on('mouse-down', function(data) {
         console.log("received mousedown event, start emit mousedown event");
-        socket.broadcast.emit('mousedown', data);
+        socket.broadcast.emit('mouse-down', data);
     });
     // on mouseup
     socket.on('mouse-up', function(data) {
@@ -57,6 +42,12 @@ io.sockets.on('connection', function(socket) {
         console.log('mousemove event:', data);
         socket.broadcast.emit('mouse-move', data);
     });
+    // // on click
+    // socket.on('mouse-click', function(data) {
+    //     console.log('click event:', data);
+    //     socket.broadcast.emit('mouse-click', data);
+    // });
+
     //new image get
     socket.on('image', function(imgData, color) {
         console.log('image received');

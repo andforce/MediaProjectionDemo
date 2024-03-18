@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 class SocketViewModel : ViewModel() {
     private val socketRepository = SocketRepository()
 
-    private val _eventFlow = MutableStateFlow<MouseEvent>(MouseEvent.None)
-    var eventFlow: StateFlow<MouseEvent> = _eventFlow
+    private val _eventFlow = MutableStateFlow<MouseEvent?>(null)
+    var eventFlow: StateFlow<MouseEvent?> = _eventFlow
 
     fun listenEvent(socketClient: SocketClient) {
         viewModelScope.launch {

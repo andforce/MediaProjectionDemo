@@ -5,4 +5,5 @@ interface MouseEventListener {
     fun onDown(mouseEvent: MouseEvent)
     fun onUp(mouseEvent: MouseEvent)
     fun onMove(mouseEvent: MouseEvent)
+//    fun onClick(mouseEvent: MouseEvent)
 }

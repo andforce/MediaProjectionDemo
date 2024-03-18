@@ -10,27 +10,14 @@ HiChat.prototype = {
     init: function() {
         var that = this;
         this.socket = io.connect();
-        this.socket.on('connect', function() {
 
-        });
-
-        this.socket.on('error', function(err) {
-
-        });
-        this.socket.on('system', function(nickName, userCount, type) {
-
-        });
+        const image = document.getElementById('image');
 
         this.socket.on('updateImage', function(user, img, color) {
             that._updateImage(user, img, color);
         });
-        // mousedown event
-        this.socket.on('mouse-up', function(data) {
-            console.log('client on socket mouse-up event:', data);
-        });
 
         // Get the image element
-        const image = document.getElementById('image');
         let isMouseDown = false;
 
         // Add the dragstart event listener
@@ -38,10 +25,21 @@ HiChat.prototype = {
             event.preventDefault();
         });
 
+        // // Add the click event listener
+        // image.addEventListener('click', function(event) {
+        //     console.log("start to emit [click] event");
+        //     that.socket.emit('mouse-click', {
+        //         x: event.offsetX,
+        //         y: event.offsetY,
+        //         width: image.clientWidth,
+        //         height: image.clientHeight
+        //     });
+        // });
+
         // Add the mousedown event listener
         image.addEventListener('mousedown', function(event) {
-            console.log("listened mousedown event, start to emit mousedown event");
-            that.socket.emit('mousedown', {
+            console.log("start to emit [mousedown] event");
+            that.socket.emit('mouse-down', {
                 x: event.offsetX,
                 y: event.offsetY,
                 width: image.clientWidth,
@@ -53,7 +51,7 @@ HiChat.prototype = {
 
         // Add the mouseup event listener
         image.addEventListener('mouseup', function(event) {
-            console.log("listened mousedown event, start to emit mouseup event");
+            console.log("start to emit [mouseup] event");
             that.socket.emit('mouse-up', {
                 x: event.offsetX,
                 y: event.offsetY,
@@ -62,11 +60,21 @@ HiChat.prototype = {
             });
             isMouseDown = false;
         });
-
+        // Add the mouseleave event listener
+        image.addEventListener('mouseleave', function(event) {
+            console.log("start to emit [mouse-up] event");
+            that.socket.emit('mouse-up', {
+                x: event.offsetX,
+                y: event.offsetY,
+                width: image.clientWidth,
+                height: image.clientHeight
+            });
+            isMouseDown = false;
+        });
         // Add the mousemove event listener
         image.addEventListener('mousemove', function(event) {
             if (isMouseDown) {
-                console.log('Mouse move event:', event, event.offsetX, event.offsetY);
+                console.log("start to emit [mousemove] event, event.offsetX: " + event.offsetX + ", event.offsetY: " + event.offsetY);
                 that.socket.emit('mouse-move', {
                     x: event.offsetX,
                     y: event.offsetY,

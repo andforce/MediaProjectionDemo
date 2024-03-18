@@ -37,10 +37,10 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewMainBinding.root)
-        viewMainBinding.root.setOnTouchListener { v, event ->
-            Log.d("MediaProjectionSocketActivity", "onCreate: $event")
-            true
-        }
+//        viewMainBinding.root.setOnTouchListener { v, event ->
+//            Log.d("MediaProjectionSocketActivity", "onCreate: $event")
+//            true
+//        }
 
         Log.d("RecordViewModel", "RecordViewModel1: $recordViewModel")
 
@@ -82,18 +82,24 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             socketViewModel.eventFlow.collect {
-                when (it) {
-                    is MouseEvent.None -> {
-                        viewMainBinding.tvInfo.text = "None"
-                    }
-                    is MouseEvent.Down -> {
-                        viewMainBinding.tvInfo.text = "MouseDown"
-                    }
-                    is MouseEvent.Move -> {
-                        viewMainBinding.tvInfo.text = "MouseMove"
-                    }
-                    is MouseEvent.Up -> {
-                        viewMainBinding.tvInfo.text = "MouseUp"
+                it?.let {
+                    when (it) {
+//                    is MouseEvent.None -> {
+//                        viewMainBinding.tvInfo.text = "None"
+//                    }
+                        is MouseEvent.Down -> {
+                            viewMainBinding.tvInfo.text = "MouseDown"
+                        }
+                        is MouseEvent.Move -> {
+                            viewMainBinding.tvInfo.text = "MouseMove"
+                        }
+                        is MouseEvent.Up -> {
+                            viewMainBinding.tvInfo.text = "MouseUp"
+                        }
+
+//                    is MouseEvent.Click -> {
+//                        viewMainBinding.tvInfo.text = "MouseClick"
+//                    }
                     }
                 }
             }
