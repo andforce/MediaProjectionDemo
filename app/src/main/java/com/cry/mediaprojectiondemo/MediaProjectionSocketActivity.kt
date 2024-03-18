@@ -37,6 +37,10 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewMainBinding.root)
+        viewMainBinding.root.setOnTouchListener { v, event ->
+            Log.d("MediaProjectionSocketActivity", "onCreate: $event")
+            true
+        }
 
         Log.d("RecordViewModel", "RecordViewModel1: $recordViewModel")
 

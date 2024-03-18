@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MediaProjectionDemo</string>
     <string name="title_activity_sc">ScActivity</string>
+    <string name="auto_touch_service_des">自动模拟操作</string>
 </resources>
