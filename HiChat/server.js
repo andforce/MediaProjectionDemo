@@ -42,6 +42,21 @@ io.sockets.on('connection', function(socket) {
     socket.on('postMsg', function(msg, color) {
         socket.broadcast.emit('newMsg', socket.nickname, msg, color);
     });
+    // on mousedown
+    socket.on('mousedown', function(data) {
+        console.log("received mousedown event, start emit mousedown event");
+        socket.broadcast.emit('mousedown', data);
+    });
+    // on mouseup
+    socket.on('mouse-up', function(data) {
+        console.log("received mouse-up event, start broadcast mouse-up event");
+        socket.broadcast.emit('mouse-up', data);
+    });
+    // on mousemove
+    socket.on('mouse-move', function(data) {
+        console.log('mousemove event:', data);
+        socket.broadcast.emit('mouse-move', data);
+    });
     //new image get
     socket.on('image', function(imgData, color) {
         console.log('image received');

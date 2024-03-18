@@ -24,7 +24,57 @@ HiChat.prototype = {
         this.socket.on('updateImage', function(user, img, color) {
             that._updateImage(user, img, color);
         });
+        // mousedown event
+        this.socket.on('mouse-up', function(data) {
+            console.log('client on socket mouse-up event:', data);
+        });
 
+        // Get the image element
+        const image = document.getElementById('image');
+        let isMouseDown = false;
+
+        // Add the dragstart event listener
+        image.addEventListener('dragstart', function(event) {
+            event.preventDefault();
+        });
+
+        // Add the mousedown event listener
+        image.addEventListener('mousedown', function(event) {
+            console.log("listened mousedown event, start to emit mousedown event");
+            that.socket.emit('mousedown', {
+                x: event.offsetX,
+                y: event.offsetY,
+                width: image.clientWidth,
+                height: image.clientHeight
+            });
+
+            isMouseDown = true;
+        });
+
+        // Add the mouseup event listener
+        image.addEventListener('mouseup', function(event) {
+            console.log("listened mousedown event, start to emit mouseup event");
+            that.socket.emit('mouse-up', {
+                x: event.offsetX,
+                y: event.offsetY,
+                width: image.clientWidth,
+                height: image.clientHeight
+            });
+            isMouseDown = false;
+        });
+
+        // Add the mousemove event listener
+        image.addEventListener('mousemove', function(event) {
+            if (isMouseDown) {
+                console.log('Mouse move event:', event, event.offsetX, event.offsetY);
+                that.socket.emit('mouse-move', {
+                    x: event.offsetX,
+                    y: event.offsetY,
+                    width: image.clientWidth,
+                    height: image.clientHeight
+                });
+            }
+        });
     },
 
     _updateImage: function(user, pathWithTime, color) {

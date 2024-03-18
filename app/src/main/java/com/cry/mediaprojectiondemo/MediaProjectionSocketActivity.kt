@@ -7,8 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.andforce.socket.MouseEvent
 import com.cry.mediaprojectiondemo.databinding.MediaprojectionActivityMainBinding
+import com.cry.mediaprojectiondemo.socket.SocketViewModel
 import com.cry.screenop.coroutine.RecordViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -28,6 +32,7 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
     }
 
     private val recordViewModel: RecordViewModel by inject()
+    private val socketViewModel: SocketViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +70,29 @@ class MediaProjectionSocketActivity : AppCompatActivity() {
                     viewModel.createScreenCaptureIntent()
                 }
             }
+        }
 
+        viewMainBinding.btnTest.setOnClickListener {
+            Toast.makeText(this, "收到点击事件了", Toast.LENGTH_SHORT).show()
+        }
+
+        lifecycleScope.launch {
+            socketViewModel.eventFlow.collect {
+                when (it) {
+                    is MouseEvent.None -> {
+                        viewMainBinding.tvInfo.text = "None"
+                    }
+                    is MouseEvent.Down -> {
+                        viewMainBinding.tvInfo.text = "MouseDown"
+                    }
+                    is MouseEvent.Move -> {
+                        viewMainBinding.tvInfo.text = "MouseMove"
+                    }
+                    is MouseEvent.Up -> {
+                        viewMainBinding.tvInfo.text = "MouseUp"
+                    }
+                }
+            }
         }
     }
 }

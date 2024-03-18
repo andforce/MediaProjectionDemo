@@ -4,9 +4,20 @@ import android.util.Log
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import org.json.JSONObject
 
 class SocketClient(url: String) {
     private var socket: Socket? = null
+
+    private var mouseEventListener: MouseEventListener? = null
+
+    fun registerMouseEventListener(listener: MouseEventListener) {
+        mouseEventListener = listener
+    }
+
+    fun unRegisterMouseEventListener() {
+        mouseEventListener = null
+    }
 
     init {
         try {
@@ -33,6 +44,26 @@ class SocketClient(url: String) {
             Log.d("SocketClient", args[0].toString())
         })
 
+        socket?.on("mousedown", Emitter.Listener { args ->
+            val data = args[0] as JSONObject
+            val down = MouseEvent.Down(data.getInt("x"), data.getInt("y"), data.getInt("width"), data.getInt("height"))
+            Log.d("SocketClient", "mousedown" + args[0].toString())
+            mouseEventListener?.onDown(down)
+        })
+
+        socket?.on("mouse-up", Emitter.Listener { args ->
+            Log.d("SocketClient", "mouseup" + args[0].toString())
+            val data = args[0] as JSONObject
+            val down = MouseEvent.Up(data.getInt("x"), data.getInt("y"), data.getInt("width"), data.getInt("height"))
+            mouseEventListener?.onUp(down)
+        })
+
+        socket?.on("mouse-move", Emitter.Listener { args ->
+            Log.d("SocketClient", "mousemove" + args[0].toString())
+            val data = args[0] as JSONObject
+            val down = MouseEvent.Move(data.getInt("x"), data.getInt("y"), data.getInt("width"), data.getInt("height"))
+            mouseEventListener?.onMove(down)
+        })
         socket?.connect()
     }
     fun send(bitmapArray: ByteArray) {

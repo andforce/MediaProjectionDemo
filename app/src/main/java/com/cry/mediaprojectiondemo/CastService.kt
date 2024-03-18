@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import com.andforce.socket.SocketClient
+import com.cry.mediaprojectiondemo.socket.SocketViewModel
 import com.cry.screenop.coroutine.RecordViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +28,9 @@ import java.io.ByteArrayOutputStream
 class CastService: Service() {
     private var mpm: MediaProjectionManager? = null
     private val viewModel: RecordViewModel by inject()
+    private val socketViewModel: SocketViewModel by inject()
 
-    private var socketClient: SocketClient = SocketClient("http://192.168.2.183:3001")
+    private var socketClient: SocketClient = SocketClient("http://10.66.32.51:3001")
     companion object {
         const val NOTIFICATION_ID = 1
         // 启动方法
@@ -78,6 +80,8 @@ class CastService: Service() {
         mpm = applicationContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager?
 
         socketClient.startConnection()
+
+        socketViewModel.listenEvent(socketClient)
     }
 
     override fun onDestroy() {
