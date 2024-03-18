@@ -58,7 +58,7 @@ class CastService: Service() {
         }
 
         job =  mainScope.launch(handler) {
-            viewModel?.capturedImage?.collect {
+            viewModel.capturedImage.collect {
                 it?.let { bitmap->
                     withContext(Dispatchers.IO) {
                         val byteArrayOutputStream = ByteArrayOutputStream()
