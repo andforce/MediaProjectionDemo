@@ -12,6 +12,8 @@ import com.cry.mediaprojectiondemo.socket.SocketViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -25,17 +27,15 @@ class AutoTouchService : AccessibilityService() {
 
     private var finalWidthPixels = 1
     private var finalHeightPixels = 1
-    private val path = Path()
+    private var path:Path? = Path()
+    private val points = mutableListOf<Pair<Float, Float>>()
     private var lastTimeStamp = 0L
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
-        var windowManager: WindowManager? = applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager?
-
-        if (windowManager == null) {
-            return
-        }
+        val windowManager =
+            applicationContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager? ?: return
 
         windowManager.defaultDisplay?.getRealMetrics(metrics)
 
@@ -44,47 +44,51 @@ class AutoTouchService : AccessibilityService() {
 
 
         job = GlobalScope.launch {
-            socketViewModel.eventFlow.collect {
+            socketViewModel.eventFlow.receiveAsFlow().buffer(capacity = 1024).collect {
 
                 it?.let {
                     //Log.d("AutoTouchService", "collect MouseEvent: $it")
-                    if (lastTimeStamp == 0L) {
-                        lastTimeStamp = System.currentTimeMillis()
-                    }
-
-
+                    val scaleW = finalWidthPixels / it.remoteWidth.toFloat()
+                    val scaleH = finalHeightPixels / it.remoteHeight.toFloat()
+                    val fromRealX = if (it.x * scaleW < 0) 0f else it.x * scaleW
+                    val fromRealY = if (it.y * scaleH < 0) 0f else it.y * scaleH
 
                     when (it) {
                         is com.andforce.socket.MouseEvent.Down -> {
-                            lastTimeStamp = System.currentTimeMillis()
-                            path.reset()
-                            val scaleW = finalWidthPixels / it.remoteWidth.toFloat()
-                            val scaleH = finalHeightPixels / it.remoteHeight.toFloat()
-                            val fromRealX = it.x * scaleW
-                            val fromRealY = it.y * scaleH
-                            path.moveTo(fromRealX, fromRealY)
 
+                            lastTimeStamp = System.currentTimeMillis()
+                            path = Path()
+                            points.clear()
+                            path?.moveTo(fromRealX, fromRealY)
+                            points.add(Pair(fromRealX, fromRealY))
+                            Log.d("AutoTouchService", "DOWN points: $points, path: $path")
                         }
                         is com.andforce.socket.MouseEvent.Move -> {
-                            val scaleW = finalWidthPixels / it.remoteWidth.toFloat()
-                            val scaleH = finalHeightPixels / it.remoteHeight.toFloat()
-                            val fromRealX = it.x * scaleW
-                            val fromRealY = it.y * scaleH
-                            path.lineTo(fromRealX, fromRealY)
+                            path?.lineTo(fromRealX, fromRealY)
+                            points.add(Pair(fromRealX, fromRealY))
+                            Log.d("AutoTouchService", "MOVE points: $points, path: $path")
                         }
                         is com.andforce.socket.MouseEvent.Up -> {
-                            if (path.isEmpty) {
+                            if (path?.isEmpty == true) {
                                 return@collect
                             }
+                            path?.lineTo(fromRealX, fromRealY)
+                            points.add(Pair(fromRealX, fromRealY))
+
                             val currentTime = System.currentTimeMillis()
-                            var duration = if (currentTime - lastTimeStamp < 25) 25 else currentTime - lastTimeStamp
-                            if (duration > 500) {
-                                duration = 500
+                            var duration = if (currentTime - lastTimeStamp < 100) 100 else currentTime - lastTimeStamp
+                            if (duration > 300) {
+                                duration = 300
                             }
 
-                            Log.d("AutoTouchService", "UP duration: $duration")
+                            // 打印points
+                            Log.d("AutoTouchService", "UP points: $points ,duration: $duration, path: $path")
 
-                            dispatchMouseGesture(0, duration)
+                            path?.let {p->
+                                dispatchMouseGesture(p,0, duration).also {
+                                    lastTimeStamp = 0
+                                }
+                            }
                         }
                     }
                 }
@@ -105,7 +109,7 @@ class AutoTouchService : AccessibilityService() {
         Log.d("AutoTouchService", "onInterrupt")
     }
 
-    private fun dispatchMouseGesture(startTime: Long, duration: Long) {
+    private fun dispatchMouseGesture(path: Path, startTime: Long, duration: Long) {
         val gestureDescription = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(path, startTime, duration))
             .build()
