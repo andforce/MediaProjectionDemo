@@ -44,7 +44,7 @@ class AutoTouchService : AccessibilityService() {
 
 
         job = GlobalScope.launch {
-            socketViewModel.eventFlow.receiveAsFlow().buffer(capacity = 1024).collect {
+            socketViewModel.eventFlow.buffer(capacity = 1024).collect {
 
                 it?.let {
                     //Log.d("AutoTouchService", "collect MouseEvent: $it")
