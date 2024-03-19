@@ -30,7 +30,7 @@ class CastService: Service() {
     private val viewModel: RecordViewModel by inject()
     private val socketViewModel: SocketViewModel by inject()
 
-    private var socketClient: SocketClient = SocketClient("http://10.66.32.51:3001")
+    private var socketClient: SocketClient = SocketClient("http://10.66.50.84:3001")
     companion object {
         const val NOTIFICATION_ID = 1
         // 启动方法
