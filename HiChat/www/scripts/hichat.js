@@ -38,7 +38,7 @@ HiChat.prototype = {
 
         // Add the mousedown event listener
         image.addEventListener('mousedown', function(event) {
-            console.log("start to emit [mousedown] event");
+            console.log("start to emit [mouse-down] event");
             that.socket.emit('mouse-down', {
                 x: event.offsetX,
                 y: event.offsetY,
@@ -51,7 +51,10 @@ HiChat.prototype = {
 
         // Add the mouseup event listener
         image.addEventListener('mouseup', function(event) {
-            console.log("start to emit [mouseup] event");
+            if (!isMouseDown) {
+                return;
+            }
+            console.log("start to emit [mouse-up] event");
             that.socket.emit('mouse-up', {
                 x: event.offsetX,
                 y: event.offsetY,
@@ -62,7 +65,10 @@ HiChat.prototype = {
         });
         // Add the mouseleave event listener
         image.addEventListener('mouseleave', function(event) {
-            console.log("start to emit [mouse-up] event");
+            if (!isMouseDown) {
+                return;
+            }
+            console.log("start to emit [mouse-up-mouseleave] event");
             that.socket.emit('mouse-up', {
                 x: event.offsetX,
                 y: event.offsetY,
