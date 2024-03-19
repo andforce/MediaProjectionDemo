@@ -4,10 +4,4 @@ sealed class MouseEvent(open val x:Int, open val y:Int, open val remoteWidth: In
     data class Down(override val x:Int, override val y:Int, override val remoteWidth: Int, override val remoteHeight: Int) : MouseEvent(x, y, remoteWidth, remoteHeight)
     data class Up(override val x:Int, override val y:Int, override val remoteWidth: Int, override val remoteHeight: Int) : MouseEvent(x, y, remoteWidth, remoteHeight)
     data class Move(override val x:Int, override val y:Int, override val remoteWidth: Int, override val remoteHeight: Int) : MouseEvent(x, y, remoteWidth, remoteHeight)
-
-//    data object None : MouseEvent()
-//    data class Down(val x:Int, val y:Int, override val remoteWidth: Int, override val remoteHeight: Int) : MouseEvent()
-//    data class Up(val x:Int, val y:Int, val remoteWidth: Int, val remoteHeight: Int) : MouseEvent()
-//    data class Move(val x:Int, val y:Int, val remoteWidth: Int, val remoteHeight: Int) : MouseEvent()
-    //data class Click(val x:Int, val y:Int, val remoteWidth: Int, val remoteHeight: Int) : MouseEvent()
 }

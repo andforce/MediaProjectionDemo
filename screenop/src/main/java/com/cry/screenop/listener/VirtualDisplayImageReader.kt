@@ -48,8 +48,12 @@ class VirtualDisplayImageReader(
 
     private val listener = ImageReader.OnImageAvailableListener { reader ->
         if (reader != null) {
-            val image = reader.acquireLatestImage()
-            imageListener?.onImage(image)
+            kotlin.runCatching {
+                val image = reader.acquireLatestImage()
+                imageListener?.onImage(image)
+            }.onFailure {
+                it.printStackTrace()
+            }
         }
     }
 }
